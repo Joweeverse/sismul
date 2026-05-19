@@ -1,9 +1,3 @@
-"""
-Digital Watermarking Script using Discrete Cosine Transform (DCT)
-This script embeds a binary watermark into a host image in the frequency domain.
-Robustness is achieved by modifying mid-frequency DCT coefficients.
-"""
-
 import cv2
 import numpy as np
 import os
@@ -14,14 +8,14 @@ def load_images(host_path, watermark_path):
     Loads the host and watermark images.
     The watermark is converted to grayscale and binarized.
     """
-    if not os.path.exists(host_path) or not os.path.exists(watermark_path):
+    if not os.path.exists(host_path) or not os.path.exists(watermark_path): #check if files exist
         raise FileNotFoundError(f"Ensure {host_path} and {watermark_path} exist.")
     
-    host = cv2.imread(host_path)
+    host = cv2.imread(host_path) # load in color (BGR)
     if host is None:
         raise ValueError(f"Could not load host image: {host_path}")
         
-    watermark = cv2.imread(watermark_path, cv2.IMREAD_GRAYSCALE)
+    watermark = cv2.imread(watermark_path, cv2.IMREAD_GRAYSCALE) # load the watermarkin grayscale (black or white)
     if watermark is None:
         raise ValueError(f"Could not load watermark image: {watermark_path}")
         
@@ -30,37 +24,32 @@ def load_images(host_path, watermark_path):
     
     return host, watermark_bin
 
-def prepare_watermark(watermark, host_shape, block_size=8):
+def prepare_watermark(watermark, host_shape, block_size=8): 
     """
     Resizes the watermark to fit the grid of blocks in the host image.
     If host is HxW, watermark will be (H/block_size) x (W/block_size).
     """
-    h, w = host_shape[:2]
-    rows = h // block_size
-    cols = w // block_size
+    h, w = host_shape[:2] # height and width of the host image
+    rows = h // block_size # number of blocks vertically
+    cols = w // block_size # number of blocks horizontally
     
     # Resize using nearest neighbor to preserve binary nature
-    resized_wm = cv2.resize(watermark, (cols, rows), interpolation=cv2.INTER_NEAREST)
-    return (resized_wm > 127).astype(np.uint8)
+    resized_wm = cv2.resize(watermark, (cols, rows), interpolation=cv2.INTER_NEAREST) # resize the watermark to fit the number of blocks in the host image
+    return (resized_wm > 127).astype(np.uint8) # convert to binary (0 and 1)
 
 def embed_watermark(host, watermark, block_size=8, alpha=15):
     """
     Embeds binary watermark bits into the DCT coefficients of the host image's Y channel.
-    
-    Args:
-        host: Original BGR image.
-        watermark: Binary 2D array (0s and 1s).
-        block_size: Size of DCT blocks (default 8x8).
-        alpha: Embedding strength.
+    The embedding modifies the (4,4), a mid-frequency coefficient to balance a good image quality and robustness.
     """
     # 1. Color space conversion (BGR -> YCrCb) to process Luminance (Y)
-    ycrcb = cv2.cvtColor(host, cv2.COLOR_BGR2YCrCb)
-    y_channel = ycrcb[:, :, 0].astype(np.float32)
+    ycrcb = cv2.cvtColor(host, cv2.COLOR_BGR2YCrCb) # manipulate the luminance channel for better invisibility
+    y_channel = ycrcb[:, :, 0].astype(np.float32) # convert to float for DCT processing
     
     wm_h, wm_w = watermark.shape
     
     # Mid-frequency coefficient choice (4,4) balances robustness and invisibility
-    coeff_pos = (4, 4)
+    coeff_pos = (4, 4) # The common choice for mid-frequency embedding, which offers a good balance between invisibility and robustness against JPEG compression
     
     # 2. Block-based DCT Embedding
     for i in range(wm_h):
@@ -76,7 +65,7 @@ def embed_watermark(host, watermark, block_size=8, alpha=15):
             
             # Embed bit: Additive modification
             if watermark[i, j] == 1:
-                dct_block[coeff_pos] += alpha
+                dct_block[coeff_pos] += alpha # Increase the coefficient to embed a '1' bit
             else:
                 dct_block[coeff_pos] -= alpha
                 
@@ -96,11 +85,6 @@ def extract_watermark(watermarked_img, host_img, block_size=8):
     against the original host image. This non-blind method is highly robust 
     against JPEG compression.
     
-    Args:
-        watermarked_img: The image containing the watermark (could be lossy JPEG).
-        host_img: The original un-watermarked host image.
-        block_size: Must match the block size used during embedding (default 8).
-        
     Returns:
         A reconstructed binary watermark image.
     """
