@@ -1,0 +1,25 @@
+# IDE files
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.env
+venv/
+env/
+
+# Output images and reports
+wajah_watermarked.png
+image_fidelity_comparison.png
+watermark_robustness_report.png
+
+# Evaluation results
+evaluation_results/
+
+# Sample images (optional: keep if you want users to have them, ignore if they are private)
+# foto jahim.jpg
+# images.jpg
