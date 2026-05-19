@@ -13,9 +13,8 @@ venv/
 env/
 
 # Output images and reports
-wajah_watermarked.png
-image_fidelity_comparison.png
-watermark_robustness_report.png
+reports/*
+!reports/.gitkeep
 
 # Evaluation results
 evaluation_results/

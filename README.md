@@ -9,6 +9,8 @@ sismul/
 ├── assets/         <-- Input directory
 │   ├── host.jpg         # The original image to be watermarked
 │   └── watermark.jpg    # The binary/logo image to embed
+├── docs/           <-- Documentation
+│   └── 18224062_Dokumentasi_Watermark.pdf  # Detailed project documentation
 ├── reports/        <-- Output directory
 │   ├── watermarked_image.png    # Lossless result
 │   ├── fidelity_report.png      # Visual quality analysis
@@ -64,6 +66,10 @@ Results are generated in the `reports/` folder:
 
 - **Invisibility:** High PSNR ensures the watermark doesn't ruin the photo quality.
 - **Robustness:** The script identifies the specific "Failure Point" where the watermark becomes unreadable due to compression.
+
+## 📚 Documentation
+
+Detailed technical documentation, including implementation details and experimental results, can be found here: [18224062_Dokumentasi_Watermark.pdf](docs/18224062_Dokumentasi_Watermark.pdf).
 
 ## 📄 License
 
